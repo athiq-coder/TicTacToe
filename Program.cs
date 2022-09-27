@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace TicTacToe_2
-{ 
+{
     class Board
     {
         Coin[] tiles;
@@ -16,29 +16,29 @@ namespace TicTacToe_2
         Stack<Coin> deletedCoins;
 
         public Board()
-        { 
-           this.tiles = new Coin[BOARDSIZE];
-           this.boardState = BoardState.Empty;
-            this.allPositions = new List<int>();
-           this.lastPositions = new Stack<int>(BOARDSIZE);
-           this.deletedPositions = new Stack<int>(BOARDSIZE);
-           this.deletedCoins = new Stack<Coin>(BOARDSIZE);
-           this.filledPlaces = 0;
+        {
+            this.tiles = new Coin[BOARDSIZE];
+            this.boardState = BoardState.Empty;
+            this.allPositions = new List<int>(BOARDSIZE);
+            this.lastPositions = new Stack<int>(BOARDSIZE);
+            this.deletedPositions = new Stack<int>(BOARDSIZE);
+            this.deletedCoins = new Stack<Coin>(BOARDSIZE);
+            this.filledPlaces = 0;
 
-            for (int i=0; i < BOARDSIZE; i++)
+            for (int i = 0; i < BOARDSIZE; i++)
             {
                 this.tiles[i] = new Coin(Choice.N);
             }
         }
 
-        public bool PlaceCoin(int position,Coin coin)
+        public bool PlaceCoin(int position, Coin coin)
         {
             if (IsFree(position))
             {
                 this.tiles[position] = coin;
                 this.filledPlaces++;
-                this.lastPositions.Push(position);
                 this.allPositions.Add(position);
+                this.lastPositions.Push(position);
                 UpdateBoardState();
                 return true;
             }
@@ -51,13 +51,7 @@ namespace TicTacToe_2
 
             for (int i = 0; i < Board.BOARDSIZE; i++)
             {
-                if (count == 3)
-                {
-                    Console.WriteLine();
-                    Console.WriteLine("----------");
-                    count = 0;
-                }
-
+                PutLine(ref count);
                 count++;
                 Console.Write("| " + this.tiles[i].GetChoice().ToString().ToUpper());
             }
@@ -73,7 +67,7 @@ namespace TicTacToe_2
 
             else if (this.filledPlaces < 5)
             {
-                 this.boardState = BoardState.PartiallyFilled;
+                this.boardState = BoardState.PartiallyFilled;
             }
 
             else if (this.filledPlaces < 9)
@@ -83,13 +77,13 @@ namespace TicTacToe_2
 
             else if (this.filledPlaces == 9)
             {
-                 this.boardState = BoardState.Full;
+                this.boardState = BoardState.Full;
             }
         }
 
         public void UndoLastPosition()
         {
-            if(this.boardState == BoardState.Empty)
+            if (this.boardState == BoardState.Empty)
             {
                 return;
             }
@@ -103,7 +97,7 @@ namespace TicTacToe_2
 
         public void RedoLastPosition()
         {
-            if(this.lastPositions.Count == 0)
+            if (this.lastPositions.Count == 0)
             {
                 return;
             }
@@ -114,46 +108,87 @@ namespace TicTacToe_2
             UpdateBoardState();
         }
 
-        public void ReverseReplay()
+        public void Replay()
         {
-          int startIndex = this.allPositions.Count - 1;
+            int count = 0;
 
-            for(int i = startIndex; i >=0; i--)
+            for (int i = 0; i < this.allPositions.Count; i++)
             {
-                int count = 0;
+                int pos = this.allPositions[i];
 
-                for(int j = startIndex; j >= 0; j--)
+                for (int j = 0; j < pos; j++)
                 {
-                    if (count == 3)
-                    {
-                        Console.WriteLine();
-                        Console.WriteLine("----------");
-                        count = 0;
-                    }
-                    if (j >= i)
-                    {
-                        Console.Write("| " + this.tiles[j].GetChoice().ToString().ToUpper());
-                    }
-                    if(j < i)
-                    {
-                        Console.Write("| " + Choice.N);
-                    }
+                    PutLine(ref count);
+                    Console.Write("| " + Choice.N);
                     count++;
                 }
-                Console.WriteLine();
-                Console.WriteLine();
-                Console.WriteLine();
-                System.Threading.Thread.Sleep(1000);
+
+                PutLine(ref count);
+                Console.Write("| " + this.tiles[this.allPositions[i]].GetChoice().ToString().ToUpper());
+                count++;
+
+                for (int k = pos + 1; k < this.allPositions.Count; k++)
+                {
+                    PutLine(ref count);
+                    Console.Write("| " + Choice.N);
+                    count++;
+                }
+                Sleep(1000);
             }
-            
+
+        }
+
+        public void ReverseReplay()
+        {
+            int count = 0;
+
+            for (int i = this.allPositions.Count - 1; i >= 0; i--)
+            {
+                for (int j = 0; j < i; j++)
+                {
+                    PutLine(ref count);
+                    Console.Write("| " + Choice.N);
+                    count++;
+                }
+
+                PutLine(ref count);
+                Console.Write("| " + this.tiles[this.allPositions[i]].GetChoice().ToString().ToUpper());
+                count++;
+
+                for (int k = i + 1; k < this.allPositions.Count; k++)
+                {
+                    PutLine(ref count);
+                    Console.Write("| " + Choice.N);
+                    count++;
+                }
+                Sleep(1000);
+            }
+
+        }
+
+        void PutLine(ref int count)
+        {
+            if (count % 3 == 0 && count!=9)
+            {
+                Console.WriteLine();
+                Console.WriteLine("----------");
+            }
+        }
+
+        void Sleep(int time)
+        {
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
+            System.Threading.Thread.Sleep(1000);
         }
 
         public BoardState GetBoardState() { return this.boardState; }
-        
+
         public bool IsFree(int position) { return this.tiles[position].GetChoice() == Choice.N; }
-        
-        public bool HasCoin(int position,Coin coin) { return this.tiles[position] == coin; }
-    
+
+        public bool HasCoin(int position, Coin coin) { return this.tiles[position] == coin; }
+
     };
 
     class Coin
@@ -164,7 +199,7 @@ namespace TicTacToe_2
 
         public Choice GetChoice() { return this.player; }
     };
-    
+
     class TicTacToe
     {
         Board gameBoard;
@@ -210,6 +245,16 @@ namespace TicTacToe_2
             PrintMessage(string.Format("   PLAYER 2 : {0}", this.secondPlayer.GetChoice().ToString().ToUpper()));
         }
 
+        public void Undo()
+        {
+            this.gameBoard.UndoLastPosition();
+        }
+
+        public void Redo()
+        {
+            this.gameBoard.RedoLastPosition();
+        }
+
         public void PlayGame()
         {
             this.currentPlayer = WhoShouldPlayFirst(); // Tosswinner will commence
@@ -220,8 +265,8 @@ namespace TicTacToe_2
 
                 int position = getUserInput();
 
-                isCoinPlaced = this.gameBoard.PlaceCoin(position,getCurrentPlayerChoice(this.currentPlayer));
-                
+                isCoinPlaced = this.gameBoard.PlaceCoin(position, getCurrentPlayerChoice(this.currentPlayer));
+
                 this.gameBoard.DisplayBoard();
 
                 if (isGameDraw() && isCoinPlaced)
@@ -232,7 +277,7 @@ namespace TicTacToe_2
 
                 if (isHalfFilled() && isCoinPlaced)
                 {
-                    this.gameState = CheckWinner(position,getCurrentPlayerChoice(currentPlayer));
+                    this.gameState = CheckWinner(position, getCurrentPlayerChoice(currentPlayer));
 
                     if (this.gameState == State.Win)
                     {
@@ -246,9 +291,19 @@ namespace TicTacToe_2
             AnnounceResults();
         }
 
+        public void Display()
+        {
+            this.gameBoard.DisplayBoard();
+        }
+
         public void ReversePlay()
         {
             this.gameBoard.ReverseReplay();
+        }
+
+        public void Replay()
+        {
+            this.gameBoard.Replay();
         }
 
         bool isHalfFilled()
@@ -261,9 +316,9 @@ namespace TicTacToe_2
             return this.gameBoard.GetBoardState() == BoardState.Full;
         }
 
-        State CheckWinner(int recentMove,Coin coin)
+        State CheckWinner(int recentMove, Coin coin)
         {
-            if( recentMove == 0 ) 
+            if (recentMove == 0)
             {
                 if (gameBoard.HasCoin(3, coin) && gameBoard.HasCoin(6, coin) || gameBoard.HasCoin(4, coin) && gameBoard.HasCoin(8, coin))
                 {
@@ -271,7 +326,7 @@ namespace TicTacToe_2
                 }
             }
 
-            if (recentMove == 1 ) 
+            if (recentMove == 1)
             {
                 if (gameBoard.HasCoin(0, coin) && gameBoard.HasCoin(2, coin) || gameBoard.HasCoin(4, coin) && gameBoard.HasCoin(7, coin))
                 {
@@ -279,7 +334,7 @@ namespace TicTacToe_2
                 }
             }
 
-            if( recentMove == 2) 
+            if (recentMove == 2)
             {
                 if (gameBoard.HasCoin(0, coin) && gameBoard.HasCoin(1, coin) || gameBoard.HasCoin(4, coin) && gameBoard.HasCoin(6, coin) || gameBoard.HasCoin(5, coin) && gameBoard.HasCoin(8, coin))
                 {
@@ -287,7 +342,7 @@ namespace TicTacToe_2
                 }
             }
 
-            if ( recentMove == 3) 
+            if (recentMove == 3)
             {
                 if (gameBoard.HasCoin(0, coin) && gameBoard.HasCoin(6, coin) || gameBoard.HasCoin(4, coin) && gameBoard.HasCoin(5, coin))
                 {
@@ -295,7 +350,7 @@ namespace TicTacToe_2
                 }
             }
 
-            if ( recentMove == 4) 
+            if (recentMove == 4)
             {
                 if (gameBoard.HasCoin(1, coin) && gameBoard.HasCoin(7, coin) || gameBoard.HasCoin(0, coin) && gameBoard.HasCoin(8, coin) || gameBoard.HasCoin(3, coin) && gameBoard.HasCoin(5, coin) || gameBoard.HasCoin(2, coin) && gameBoard.HasCoin(6, coin))
                 {
@@ -303,7 +358,7 @@ namespace TicTacToe_2
                 }
             }
 
-            if ( recentMove == 5) 
+            if (recentMove == 5)
             {
                 if (gameBoard.HasCoin(2, coin) && gameBoard.HasCoin(8, coin) || gameBoard.HasCoin(3, coin) && gameBoard.HasCoin(4, coin))
                 {
@@ -314,12 +369,12 @@ namespace TicTacToe_2
             if (recentMove == 6)
             {
                 if (gameBoard.HasCoin(7, coin) && gameBoard.HasCoin(8, coin) || gameBoard.HasCoin(0, coin) && gameBoard.HasCoin(3, coin) || gameBoard.HasCoin(4, coin) && gameBoard.HasCoin(2, coin))
-                { 
+                {
                     return State.Win;
                 }
             }
 
-            if ( recentMove == 7) 
+            if (recentMove == 7)
             {
                 if (gameBoard.HasCoin(1, coin) && gameBoard.HasCoin(4, coin) || gameBoard.HasCoin(6, coin) && gameBoard.HasCoin(8, coin))
                 {
@@ -327,7 +382,7 @@ namespace TicTacToe_2
                 }
             }
 
-            if ( recentMove == 8) 
+            if (recentMove == 8)
             {
                 if (gameBoard.HasCoin(2, coin) && gameBoard.HasCoin(5, coin) || gameBoard.HasCoin(0, coin) && gameBoard.HasCoin(4, coin) || gameBoard.HasCoin(6, coin) && gameBoard.HasCoin(7, coin))
                 {
@@ -346,7 +401,8 @@ namespace TicTacToe_2
             if (this.gameState == State.Win)
             {
                 PrintMessage(string.Format("Winner is {0}", this.currentPlayer));
-            }else
+            }
+            else
             {
                 PrintMessage(string.Format("The game is draw"));
             }
@@ -363,7 +419,7 @@ namespace TicTacToe_2
 
         void ChangePlayer()
         {
-          this.currentPlayer = this.currentPlayer == Player.First ? Player.Second : Player.First;
+            this.currentPlayer = this.currentPlayer == Player.First ? Player.Second : Player.First;
         }
 
         Coin getCurrentPlayerChoice(Player currentPlayer)
@@ -379,7 +435,7 @@ namespace TicTacToe_2
 
             Choice LoserChoice = (WinnerChoice == Choice.o) ? Choice.x : Choice.o;
 
-            if(this.tossWinner == Player.First)
+            if (this.tossWinner == Player.First)
             {
                 this.firstPlayer = new Coin(WinnerChoice);
                 this.secondPlayer = new Coin(LoserChoice);
@@ -399,7 +455,7 @@ namespace TicTacToe_2
             SetConsoleColor(ConsoleColor.Cyan);
             Console.WriteLine("----------------------------");
             SetConsoleColor(ConsoleColor.DarkMagenta);
-            Console.WriteLine("| "+message+"          |");
+            Console.WriteLine("| " + message + "          |");
             SetConsoleColor(ConsoleColor.Cyan);
             Console.WriteLine("----------------------------");
             Console.ResetColor();

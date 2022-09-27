@@ -11,7 +11,23 @@ namespace TicTacToe_2
 
             game.PlayGame();
 
-            game.ReversePlay();
+            game.Undo();
+
+            game.Undo();
+
+            game.Undo();
+
+            game.Undo();
+
+            game.Undo();
+
+            game.Display();
+
+            game.Redo();
+
+            game.Display();
+
+            game.Redo();
         }
     }
 }
